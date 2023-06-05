@@ -68,4 +68,11 @@ class Plugin(pwem.Plugin):
     def _getGMConvertDownloadUrl(cls):
         return 'https://pdbj.org/gmfit/cgi-bin/dwnld_src_file.cgi?filename=gmconvert-src-{}.tar.gz'.format(GMCONVERT_DIC['version'])
 
-  
+    @classmethod
+    def getGMConvertBin(cls):
+        return join(cls.getVar(GMCONVERT_DIC['home']), 'gmconvert')
+
+    @classmethod
+    def runGMConvert(cls, protocol, args='', cwd=None):
+        """ Run Gromacs command from a given protocol. """
+        protocol.runJob(cls.getGMConvertBin(), args, cwd=cwd)

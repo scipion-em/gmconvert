@@ -32,6 +32,7 @@ This module will provide conversion of an atomic structure to a Gaussian mixture
 from pyworkflow.protocol import Protocol, params
 from pwem.objects import EMFile
 
+from gmconvert import Plugin as gmconvertPlugin
 
 class GMConvertAtomStruct(Protocol):
     """
@@ -67,9 +68,10 @@ class GMConvertAtomStruct(Protocol):
         self._insertFunctionStep('createOutputStep')
 
     def convertStep(self):
-        args = 'AG2 -ipdb {0} -ng {1} -ogmm {2}'.format(self.inputStructure.get().getFileName(),
-                                                        self.numGaussians.get(), self.outFn.get())
-        self.runJob('gmconvert', args)
+        args = 'A2G -ipdb {0} -ng {1} -ogmm {2}'.format(self.inputStructure.get().getFileName(),
+                                                        self.numGaussians.get(), 
+                                                        self._getPath(self.outFn.get()))
+        gmconvertPlugin.runGMConvert(self, args)
 
     def createOutputStep(self):
         # register how many times the message has been printed

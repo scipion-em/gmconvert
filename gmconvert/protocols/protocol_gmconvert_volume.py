@@ -32,12 +32,13 @@ This module will provide the conversion of a volume to a Gaussian mixture model
 from pyworkflow.protocol import Protocol, params
 from pwem.objects import EMFile
 
+from gmconvert import Plugin as gmconvertPlugin
 
 class GMConvertVolume(Protocol):
     """
     This protocol will convert a volume to a Gaussian mixture model
     """
-    _label = 'gmconvert atomic structure'
+    _label = 'gmconvert volume'
 
     # -------------------------- DEFINE param functions ----------------------
     def _defineParams(self, form):
@@ -46,14 +47,14 @@ class GMConvertVolume(Protocol):
             form: this is the form to be populated with sections and params.
         """
         # You need a params to belong to a section:
-        form.addSection(label='gmconvert atomic structure')
+        form.addSection(label='gmconvert volume')
         form.addParam('inputVolume', params.PointerParam, label="Input volume",
                       important=True,
                       pointerClass='Volume',
                       help='The volume to be converted')
         
         form.addParam('cutoff', params.FloatParam,
-                      default=10, label='threshold', important=True,
+                      default=0.05, label='threshold', important=True,
                       help='cutoff for thresholding the volume')        
 
         form.addParam('numGaussians', params.IntParam,
@@ -69,10 +70,11 @@ class GMConvertVolume(Protocol):
         self._insertFunctionStep('createOutputStep')
 
     def convertStep(self):
-        args = 'V2G -imap {0} -ogmm {1} -cutoff {2} -ng {3}'.format(self.inputStructure.get().getFileName(), 
-                                                                    self.outFn.get(), self.cutoff.get(), 
+        args = 'V2G -imap {0} -ogmm {1} -cutoff {2} -ng {3}'.format(self.inputVolume.get().getFileName(), 
+                                                                    self._getPath(self.outFn.get()), 
+                                                                    self.cutoff.get(), 
                                                                     self.numGaussians.get())
-        self.runJob('gmconvert', args)
+        gmconvertPlugin.runGMConvert(self, args)
 
     def createOutputStep(self):
         # register how many times the message has been printed
