@@ -3,7 +3,7 @@
 # *
 # * Authors:     James Krieger (jmkrieger@cnb.csic.es)
 # *
-# * your institution
+# * Biocomputing Unit, Centro Nacional de Biotecnologia, CSIC
 # *
 # * This program is free software; you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -71,7 +71,24 @@ class GMConvertAtomStruct(Protocol):
         args = 'A2G -ipdb {0} -ng {1} -ogmm {2}'.format(self.inputStructure.get().getFileName(),
                                                         self.numGaussians.get(), 
                                                         self._getPath(self.outFn.get()))
-        gmconvertPlugin.runGMConvert(self, args)
+        try:
+            gmconvertPlugin.runGMConvert(self, args)
+        except:
+            # check if it actually finished correctly
+            fi = open(self._getLogsPath('run.stdout'), 'r')
+            lines = fi.readlines()
+            fi.close()
+
+            if not lines[-1].startswith('COMP_TIME_SEC_FINAL'):
+                # gmconvert usually raises an non-zero error code regardless 
+                # so we should go and read the error information from the log file
+                log = open(self._getLogsPath("run.stderr"), 'r')
+                if len(log.read().splitlines()) > 0:
+                    for line in log.read().splitlines():
+                        self.info("ERROR: %s." % line)
+                        raise ChildProcessError("gmconvert has failed: %s. See error log "
+                                                "for more details." % line) from None
+
 
     def createOutputStep(self):
         # register how many times the message has been printed

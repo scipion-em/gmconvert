@@ -2,7 +2,7 @@
 # *
 # * Authors:     James Krieger (jmkrieger@cnb.csic.es)
 # *
-# * Biocomputing Unit, CNB-CSIC
+# * Biocomputing Unit, Centro Nacional de Biotecnologia, CSIC
 # *
 # * This program is free software; you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by

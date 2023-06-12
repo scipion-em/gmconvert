@@ -1,8 +1,8 @@
 # **************************************************************************
 # *
-# * Authors:     Daniel Del Hoyo (ddelhoyo@cnb.csic.es)
+# * Authors:     James Krieger (jmkrieger@cnb.csic.es)
 # *
-# * Unidad de  Bioinformatica of Centro Nacional de Biotecnologia , CSIC
+# * Biocomputing Unit, Centro Nacional de Biotecnologia, CSIC
 # *
 # * This program is free software; you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ class TestGMConvert(BaseTest):
             outFn='2190_ng10.gmm')
 
         self.launchProtocol(protVol)
-        gmmOut = getattr(protVol, 'outputFile', None)
+        gmmOut = getattr(protVol, 'outFile', None)
         self.assertIsNotNone(gmmOut)
 
     def _runConvertPdb(self):
@@ -85,7 +85,7 @@ class TestGMConvert(BaseTest):
             outFn='5c44_ng10.gmm')
 
         self.launchProtocol(protPdb)
-        gmmOut = getattr(protPdb, 'outputFile', None)
+        gmmOut = getattr(protPdb, 'outFile', None)
         self.assertIsNotNone(gmmOut)
 
 
