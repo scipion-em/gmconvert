@@ -62,6 +62,9 @@ class GMConvertVolume(Protocol):
 
         form.addParam('outFn', params.StringParam,
                       default='', label='Output filename', important=True)
+        
+        form.addParam('outMap', params.StringParam,
+                      default='', label='Output map filename (optional)')
 
     # --------------------------- STEPS functions ------------------------------
     def _insertAllSteps(self):
@@ -74,6 +77,9 @@ class GMConvertVolume(Protocol):
                                                                     self._getPath(self.outFn.get()), 
                                                                     self.cutoff.get(), 
                                                                     self.numGaussians.get())
+        if self.outMap.get() != '':
+            args += ' -oimap {0}'.format(self.outMap.get())
+
         try:
             gmconvertPlugin.runGMConvert(self, args)
         except:
@@ -93,23 +99,21 @@ class GMConvertVolume(Protocol):
                                                 "for more details." % line) from None
 
     def createOutputStep(self):
-        # register how many times the message has been printed
-        # Now count will be an accumulated value
-        outputFile = EMFile(filename=self._getPath(self.outFn.get()))
-        self._defineOutputs(outFile=outputFile)
+        outFile = EMFile(filename=self._getPath(self.outFn.get()))
+        self._defineOutputs(outputFile=outFile)
 
     # --------------------------- INFO functions -----------------------------------
     def _summary(self):
         """ Summarize what the protocol has done"""
         summary = []
         if self.isFinished():
-            summary.append("This protocol has converted {0} to a GMM in {0}." % (self.inputStructure.get().getFileName(), 
+            summary.append("This protocol has converted {0} to a GMM in {0}." % (self.inputVolume.get().getFileName(), 
                                                                                  self._getPath(self.outFn.get())))
         return summary
 
     def _methods(self):
         methods = []
         if self.isFinished():
-            methods.append("This protocol has converted {0} to a GMM in {0}." % (self.inputStructure.get().getFileName(), 
+            methods.append("This protocol has converted {0} to a GMM in {0}." % (self.inputVolume.get().getFileName(), 
                                                                                  self._getPath(self.outFn.get())))
         return methods

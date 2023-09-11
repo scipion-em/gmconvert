@@ -91,10 +91,8 @@ class GMConvertAtomStruct(Protocol):
 
 
     def createOutputStep(self):
-        # register how many times the message has been printed
-        # Now count will be an accumulated value
-        outputFile = EMFile(filename=self._getPath(self.outFn.get()))
-        self._defineOutputs(outFile=outputFile)
+        outFile = EMFile(filename=self._getPath(self.outFn.get()))
+        self._defineOutputs(outputFile=outFile)
 
     # --------------------------- INFO functions -----------------------------------
     def _summary(self):

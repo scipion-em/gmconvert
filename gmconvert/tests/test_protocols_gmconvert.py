@@ -26,10 +26,9 @@
 
 from pyworkflow.tests import BaseTest, setupTestProject
 from pwem.protocols import ProtImportVolumes, ProtImportPdb
-import pwem
-import shutil, os
 
-from ..protocols import GMConvertAtomStruct, GMConvertVolume
+from ..protocols import (GMConvertAtomStruct, GMConvertVolume, 
+                         GMConvertCompareVolume)
 
 
 FROM_FILE, FROM_SCIPION = 0, 1
@@ -46,47 +45,57 @@ class TestGMConvert(BaseTest):
     def test_gmconvertVol(cls):
         cls._runImportVolumes()
         cls._runConvertVol()
+        cls._runCompareVol()
 
     @classmethod
     def _runImportVolumes(cls):
         """ Run an Import volumes protocol. """
-        protImportVol = cls.newProtocol(
+        cls.protImportVol = cls.newProtocol(
             ProtImportVolumes,
             importFrom=1,
             emdbId='2190')
-        cls.launchProtocol(protImportVol)
-        cls.protImportVol = protImportVol
+        cls.launchProtocol(cls.protImportVol)
 
     @classmethod
     def _runImportPDB(cls):
-        protImportPDB = cls.newProtocol(
+        cls.protImportPDB = cls.newProtocol(
             ProtImportPdb,
             inputPdbData=0,
             pdbId='5c44')
-        cls.launchProtocol(protImportPDB)
-        cls.protImportPDB = protImportPDB
+        cls.launchProtocol(cls.protImportPDB)
 
-    def _runConvertVol(self):
-        protVol = self.newProtocol(
+    @classmethod
+    def _runConvertVol(cls):
+        cls.protVol = cls.newProtocol(
             GMConvertVolume,
-            inputVolume=self.protImportVol.outputVolume,
-            cutoff=0.0666, numGaussians=10,
-            outFn='2190_ng10.gmm')
+            inputVolume=cls.protImportVol.outputVolume,
+            cutoff=0.0666, numGaussians=10)
+        cls.protVol.outFn.set('emd_2190_ng10.gmm')
 
-        self.launchProtocol(protVol)
-        gmmOut = getattr(protVol, 'outFile', None)
-        self.assertIsNotNone(gmmOut)
+        cls.launchProtocol(cls.protVol)
+        cls.gmmOutVol = getattr(cls.protVol, 'outputFile', None)
 
-    def _runConvertPdb(self):
-        protPdb = self.newProtocol(
+    @classmethod
+    def _runConvertPdb(cls):
+        cls.protPdb = cls.newProtocol(
             GMConvertAtomStruct,
-            inputStructure=self.protImportPDB.outputPdb,
-            numGaussians=10,
-            outFn='5c44_ng10.gmm')
+            inputStructure=cls.protImportPDB.outputPdb,
+            numGaussians=10)
+        cls.protPdb.outFn.set('pdb_5c44_ng10.gmm')
 
-        self.launchProtocol(protPdb)
-        gmmOut = getattr(protPdb, 'outFile', None)
-        self.assertIsNotNone(gmmOut)
+        cls.launchProtocol(cls.protPdb)
+        cls.gmmOutPdb = getattr(cls.protPdb, 'outputFile', None)
 
+    @classmethod
+    def _runCompareVol(cls):
+        cls.protCmpVol = cls.newProtocol(
+            GMConvertCompareVolume,
+            inputVolume=cls.protImportVol.outputVolume,
+            inputGmmData=1, cutoff=0.0666, numGaussians=10)
+        cls.protCmpVol.inputGmm.set(cls.gmmOutVol)
+        cls.protCmpVol.outMap.set('emd_2190_ng10_compare.mrc')
+
+        cls.launchProtocol(cls.protCmpVol)
+        cls.compOut = getattr(cls.protCmpVol, 'outputVolume', None)
 
 
